@@ -1,6 +1,6 @@
 export class Apod {
   constructor() {
-    this.API_KEY = "2h1UFv9P3oTlYdqE8Qro5fkhmfUmtwFbD7fcPrAF";
+    this.API_KEY = "[Your API KEY]";
     this.BASE_URL = "https://api.nasa.gov/planetary/apod";
   }
 
