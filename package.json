@@ -31,6 +31,7 @@
     "sass": "^1.26.10"
   },
   "dependencies": {
+    "date-fns": "^2.15.0",
     "react": "^15.0.0 || ^16.0.0",
     "react-dom": "^15.0.0 || ^16.0.0",
     "react-icons": "^3.10.0"

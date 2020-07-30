@@ -11,8 +11,8 @@ export const initialState = {
   slides: [],
   index: 0,
   autoSlides: false,
-  autoSlidesIntervalCallback: null,
-  autoSlidesIntervalDelay: 5000,
+  autoSlidesCallback: null,
+  autoSlidesDelay: 5000,
 };
 
 function reducer(state, action) {
@@ -50,8 +50,8 @@ function reducer(state, action) {
       return {
         ...state,
         autoSlides: !state.autoSlides,
-        autoSlidesIntervalCallback: action.payload.callback,
-        autoSlidesIntervalDelay: action.payload.delay,
+        autoSlidesCallback: action.payload.callback,
+        autoSlidesDelay: action.payload.delay,
       };
     }
     case SET_SLIDES: {

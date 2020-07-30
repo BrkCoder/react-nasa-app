@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, Fragment } from "react";
+import React, { useReducer, Fragment } from "react";
 import {
   SET_CUREENT_SLIDE_INDEX,
   SET_NEXT_SLIDE_INDEX,
@@ -7,37 +7,28 @@ import {
   SET_SLIDES,
 } from "../actions/Carousel";
 import reducer, { initialState } from "../reducers/Carousel";
-import {
-  setAutoSlidesEffect,
-  setInitialSlidesEffect,
-} from "../effects/Carousel";
 import { LEFT, RIGHT } from "../constants/Directions";
 import Arrow from "./Arrow";
 
 import "./Carousel.scss";
 import Slide from "./Slide";
 import Indicator from "./Indicator";
+import { useAutoSlides, useInitialSlides } from "../hooks/Carousel";
 
 const Carousel = () => {
   // State Management
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const setSlides = (slides) => {
+  //Effects
+  useInitialSlides((slides) => {
     dispatch({
       type: SET_SLIDES,
       payload: {
         slides,
       },
     });
-  };
-
-  //Effects
-  useEffect(setInitialSlidesEffect(setSlides), []);
-  useEffect(setAutoSlidesEffect(state), [
-    state.autoSlides,
-    state.autoSlidesIntervalCallback,
-    state.autoSlidesIntervalDelay,
-  ]);
+  });
+  useAutoSlides(state);
 
   //Methods
   const setCurrentSlideIndex = (index) => () => {
