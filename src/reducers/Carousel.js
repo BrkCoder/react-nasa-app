@@ -16,7 +16,6 @@ export const initialState = {
 };
 
 function reducer(state, action) {
-  console.log("reducer run", state);
   switch (action.type) {
     case SET_CUREENT_SLIDE_INDEX: {
       return {

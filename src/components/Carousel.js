@@ -1,5 +1,4 @@
 import React, { useReducer, useEffect, Fragment } from "react";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import {
   SET_CUREENT_SLIDE_INDEX,
   SET_NEXT_SLIDE_INDEX,
@@ -9,36 +8,36 @@ import {
 } from "../actions/Carousel";
 import reducer, { initialState } from "../reducers/Carousel";
 import {
-  setAutoSlidesIntervalEffect,
-  fetchSlidesEffect,
+  setAutoSlidesEffect,
+  setInitialSlidesEffect,
 } from "../effects/Carousel";
+import { LEFT, RIGHT } from "../constants/Directions";
+import Arrow from "./Arrow";
 
 import "./Carousel.scss";
+import Slide from "./Slide";
+import Indicator from "./Indicator";
 
 const Carousel = () => {
   // State Management
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const setSlides = (slides) => {
+    dispatch({
+      type: SET_SLIDES,
+      payload: {
+        slides,
+      },
+    });
+  };
+
   //Effects
-  useEffect(() => setAutoSlidesIntervalEffect(state), [
+  useEffect(setInitialSlidesEffect(setSlides), []);
+  useEffect(setAutoSlidesEffect(state), [
     state.autoSlides,
     state.autoSlidesIntervalCallback,
     state.autoSlidesIntervalDelay,
   ]);
-
-  useEffect(() => {
-    fetchSlidesEffect().then((slides) => {
-      const filteredSlides = slides.filter(
-        (slide) => slide.media_type === "image"
-      );
-      dispatch({
-        type: SET_SLIDES,
-        payload: {
-          slides: filteredSlides,
-        },
-      });
-    });
-  }, []);
 
   //Methods
   const setCurrentSlideIndex = (index) => () => {
@@ -84,64 +83,54 @@ const Carousel = () => {
     });
   };
 
+  const getSlides = () => {
+    return state.slides.map((slide, index) => {
+      return (
+        <Slide
+          key={index}
+          index={index}
+          currentIndex={state.index}
+          slide={slide}
+          slideClassName="carousel__slide"
+          slideActiveClassName="carousel__slide carousel__slide--active"
+          slideImageClassName="carousel-slide__image"
+        />
+      );
+    });
+  };
+
+  const getIndicators = () => {
+    return state.slides.map((slide, index) => (
+      <Indicator
+        key={index}
+        index={index}
+        currentIndex={state.index}
+        indicatorClassName="carousel__indicator"
+        indicatorActiveClassName="carousel__indicator carousel__indicator--active"
+        clickHandler={setCurrentSlideIndex(index)}
+      />
+    ));
+  };
+
   return (
     <div className="carousel">
-      <span
-        role="button"
-        tabIndex="0"
-        className="carousel__arrow carousel__arrow--left"
-        onClick={decrementCurrentSlideIndex}
-        onKeyDown={decrementCurrentSlideIndex}
-      >
-        <MdKeyboardArrowLeft className="carousel-arrow__icon" />
-      </span>
+      <Arrow
+        direction={LEFT}
+        arrowClassName="carousel__arrow carousel__arrow--left"
+        iconClassName="carousel-arrow__icon"
+        clickHandler={decrementCurrentSlideIndex}
+      />
 
-      <ul className="carousel__slides">
-        {state.slides.map((slide, index) => (
-          <li
-            className={
-              index === state.index
-                ? "carousel__slide carousel__slide--active"
-                : "carousel__slide"
-            }
-            key={index}
-          >
-            <img
-              className="carousel-slide__image"
-              src={slide.url}
-              alt={slide.explanation}
-            />
-          </li>
-        ))}
-      </ul>
+      <ul className="carousel__slides">{getSlides()}</ul>
 
-      <span
-        role="button"
-        tabIndex="0"
-        className="carousel__arrow carousel__arrow--right"
-        onClick={incrementCurrentSlideIndex}
-        onKeyDown={incrementCurrentSlideIndex}
-      >
-        <MdKeyboardArrowRight className="carousel-arrow__icon" />
-      </span>
+      <Arrow
+        direction={RIGHT}
+        arrowClassName="carousel__arrow carousel__arrow--right"
+        iconClassName="carousel-arrow__icon"
+        clickHandler={incrementCurrentSlideIndex}
+      />
 
-      <ul className="carousel__indicators">
-        {state.slides.map((slide, index) => (
-          <li key={index}>
-            <span
-              role="button"
-              tabIndex="0"
-              className={
-                index === state.index
-                  ? "carousel__indicator carousel__indicator--active"
-                  : "carousel__indicator"
-              }
-              onClick={setCurrentSlideIndex(index)}
-              onKeyDown={setCurrentSlideIndex(index)}
-            ></span>
-          </li>
-        ))}
-      </ul>
+      <ul className="carousel__indicators">{getIndicators()}</ul>
       {!state.autoSlides ? (
         <Fragment>
           <button onClick={toggleAutoSlides(incrementCurrentSlideIndex)}>
