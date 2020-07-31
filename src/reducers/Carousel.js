@@ -2,17 +2,17 @@ import {
   SET_CUREENT_SLIDE_INDEX,
   SET_NEXT_SLIDE_INDEX,
   SET_PREV_SLIDE_INDEX,
-  TOGGLE_AUTO_SLIDES,
-  SET_SLIDES,
+  SET_AUTO_SWITCH,
+  FETCH_SLIDES,
   CLEAR_SLIDES,
 } from "../actions/Carousel";
 
 export const initialState = {
+  currentIndex: 0,
   slides: [],
-  index: 0,
-  autoSlides: false,
-  autoSlidesCallback: null,
-  autoSlidesDelay: 5000,
+  autoSwitch: false, // false | true
+  autoSwitchDelay: 1000, // ms
+  autoSwitchCallback: null, // function | null
 };
 
 function reducer(state, action) {
@@ -20,41 +20,36 @@ function reducer(state, action) {
     case SET_CUREENT_SLIDE_INDEX: {
       return {
         ...state,
-        index: action.payload.index,
+        currentIndex: action.payload.index,
       };
     }
     case SET_NEXT_SLIDE_INDEX: {
-      const length = action.payload.length - 1;
-      console.log(length, state);
-      let index = state.index;
-      if (state.index === length) {
-        index = -1;
-      }
+      const length = state.slides.length;
+      const current = state.currentIndex;
+      const currentIndex = current === length - 1 ? 0 : current + 1;
       return {
         ...state,
-        index: index + 1,
+        currentIndex,
       };
     }
     case SET_PREV_SLIDE_INDEX: {
-      const length = action.payload.length;
-      let index = state.index;
-      if (index < 1) {
-        index = length;
-      }
+      const length = state.slides.length;
+      const current = state.currentIndex;
+      const currentIndex = current === 0 ? length - 1 : current - 1;
       return {
         ...state,
-        index: index - 1,
+        currentIndex,
       };
     }
-    case TOGGLE_AUTO_SLIDES: {
+    case SET_AUTO_SWITCH: {
       return {
         ...state,
-        autoSlides: !state.autoSlides,
-        autoSlidesCallback: action.payload.callback,
-        autoSlidesDelay: action.payload.delay,
+        autoSwitch: action.payload.autoSwitch,
+        autoSwitchDelay: action.payload.autoSwitchDelay,
+        autoSwitchCallback: action.payload.autoSwitchCallback,
       };
     }
-    case SET_SLIDES: {
+    case FETCH_SLIDES: {
       return {
         ...state,
         slides: action.payload.slides,

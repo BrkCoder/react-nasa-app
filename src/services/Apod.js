@@ -1,6 +1,10 @@
+import { addDays } from "date-fns";
+import startOfWeek from "date-fns/startOfWeek";
+import startOfToday from "date-fns/startOfToday";
+
 export class Apod {
   constructor() {
-    this.API_KEY = "[Your API KEY]";
+    this.API_KEY = "[Your API Key]";
     this.BASE_URL = "https://api.nasa.gov/planetary/apod";
   }
 
@@ -15,5 +19,20 @@ export class Apod {
     );
     let data = await response.json();
     return data;
+  }
+
+  async getAstronomyPicturesOfTheWeek() {
+    const current = startOfToday();
+    const past = startOfWeek(current);
+    const pictures = [];
+    for (let date = past; date <= current; date = addDays(date, 1)) {
+      try {
+        const picture = await this.getPictureOfTheDay(date, true);
+        pictures.push(picture);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return pictures;
   }
 }

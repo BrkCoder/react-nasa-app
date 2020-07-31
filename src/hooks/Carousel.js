@@ -1,49 +1,47 @@
-import { useEffect } from "react";
-import { addDays } from "date-fns";
-import startOfWeek from "date-fns/startOfWeek";
-import startOfToday from "date-fns/startOfToday";
+import { useEffect, useReducer } from "react";
 import { Apod } from "../services/Apod";
+import reducer, { initialState } from "../reducers/Carousel";
+import { FETCH_SLIDES } from "../actions/Carousel";
 
-export const useAutoSlides = (state) => {
-  useEffect(() => {
-    return setAutoSlidesInterval(state);
-  }, [state.autoSlides, state.autoSlidesCallback, state.autoSlidesDelay]);
-};
+export const useCarouselManagement = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-export const useInitialSlides = (callback) => {
+  //Init Carousel Slides
   useEffect(() => {
     fetchSlides()
-      .then((slides) => callback(slides))
+      .then((slides) => {
+        dispatch({
+          type: FETCH_SLIDES,
+          payload: {
+            slides,
+          },
+        });
+      })
       .catch(console.error);
   }, []);
+
+  //Init AutoSwitch Carousel Slides
+  useEffect(() => {
+    return setAutoSwitchInterval(state);
+  }, [state.autoSwitch, state.autoSwitchCallback, state.autoSwitchDelay]);
+
+  //Helper methods
+  const setAutoSwitchInterval = ({
+    autoSwitch: auto,
+    autoSwitchCallback: callback,
+    autoSwitchDelay: delay,
+  }) => {
+    const intervalId = auto && callback ? setInterval(callback, delay) : null;
+    return () => clearInterval(intervalId);
+  };
+
+  const fetchSlides = async function () {
+    const apod = new Apod();
+    const result = await apod.getAstronomyPicturesOfTheWeek();
+    return result.filter((slide) => slide.media_type === "image");
+  };
+
+  return [state, dispatch];
 };
 
-const setAutoSlidesInterval = ({
-  autoSlides: auto,
-  autoSlidesCallback: callback,
-  autoSlidesDelay: delay,
-}) => {
-  const intervalId = auto && callback ? setInterval(callback, delay) : null;
-  return () => clearInterval(intervalId);
-};
-
-const fetchSlides = async function () {
-  const result = await getAstronomyPicturesOfTheWeek();
-  return result.filter((slide) => slide.media_type === "image");
-};
-
-const getAstronomyPicturesOfTheWeek = async function () {
-  const apod = new Apod();
-  const current = startOfToday();
-  const past = startOfWeek(current);
-  const slides = [];
-  for (let date = past; date <= current; date = addDays(date, 1)) {
-    try {
-      const slide = await apod.getPictureOfTheDay(date, true);
-      slides.push(slide);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return slides;
-};
+export default useCarouselManagement;

@@ -1,18 +1,8 @@
 import React from "react";
-import {
-  MdKeyboardArrowLeft,
-  MdKeyboardArrowRight,
-  MdKeyboardArrowUp,
-} from "react-icons/md";
-import { LEFT, RIGHT } from "../constants/Directions";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { RIGHT } from "../constants/Direction";
 
 const Arrow = ({ direction, arrowClassName, iconClassName, clickHandler }) => {
-  let icon = <MdKeyboardArrowUp className={iconClassName} />;
-  if (direction == LEFT) {
-    icon = <MdKeyboardArrowLeft className={iconClassName} />;
-  } else if (direction === RIGHT) {
-    icon = <MdKeyboardArrowRight className={iconClassName} />;
-  }
   return (
     <span
       role="button"
@@ -21,7 +11,11 @@ const Arrow = ({ direction, arrowClassName, iconClassName, clickHandler }) => {
       onClick={clickHandler}
       onKeyDown={clickHandler}
     >
-      {icon}
+      {direction === RIGHT ? (
+        <MdKeyboardArrowRight className={iconClassName} />
+      ) : (
+        <MdKeyboardArrowLeft className={iconClassName} />
+      )}
     </span>
   );
 };
