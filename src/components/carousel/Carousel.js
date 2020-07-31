@@ -14,7 +14,6 @@ import useCarouselManagement from "../../hooks/Carousel";
 import "./Carousel.scss";
 
 const Carousel = () => {
-  console.log("rernder carousel");
   const [state, dispatch] = useCarouselManagement();
 
   const setCurrentSlideIndex = (index) => {
