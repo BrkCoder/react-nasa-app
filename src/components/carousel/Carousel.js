@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, Fragment } from "react";
+import React, { useEffect, useReducer } from "react";
 import reducer, { initialState } from "../../reducers/Carousel";
 import {
   SET_CUREENT_SLIDE_INDEX,
@@ -7,8 +7,6 @@ import {
   SET_AUTO_PLAY,
   FETCH_SLIDES,
 } from "../../actions/Carousel";
-import getSlides from "./Slides";
-import getIndicators from "./Indicators";
 import { subDays, format } from "date-fns";
 import { Nasa } from "../../services/Nasa";
 
@@ -38,6 +36,72 @@ const getDates = (daysAgo) => {
     .map((date) => format(date, "yyyy-MM-dd"));
 };
 
+/**
+ * Generate array of slide components.
+ */
+const getSlides = ({ slides, currentIndex }) => {
+  return (
+    slides &&
+    slides.map((slide, index) => {
+      return (
+        <li
+          className={
+            index === currentIndex
+              ? "carousel__slide carousel__slide--active"
+              : "carousel__slide"
+          }
+          key={index}
+        >
+          {slide.media_type === "video" ? (
+            <iframe
+              title="nasa youtube video"
+              type="text/html"
+              className="carousel-slide__image"
+              src={slide.url}
+              frameBorder="0"
+            ></iframe>
+          ) : (
+            <img
+              className="carousel-slide__image"
+              src={slide.url}
+              alt={slide.explanation}
+            />
+          )}
+        </li>
+      );
+    })
+  );
+};
+
+/**
+ * Generate array of indicator components
+ * @param {*} state
+ * @param {*} setCurrentSlideIndex
+ */
+const getIndicators = ({ slides, currentIndex }, setCurrentSlideIndex) => {
+  return (
+    slides &&
+    slides.map((slide, index) => (
+      <li key={index}>
+        <span
+          role="button"
+          tabIndex="0"
+          className={
+            index === currentIndex
+              ? "carousel__indicator carousel__indicator--active"
+              : "carousel__indicator"
+          }
+          onClick={setCurrentSlideIndex}
+          onKeyDown={setCurrentSlideIndex}
+        ></span>
+      </li>
+    ))
+  );
+};
+
+/**
+ * Carousel Component
+ */
 const Carousel = () => {
   const SLIDE_DURATION = 3000;
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -64,7 +128,7 @@ const Carousel = () => {
           type: SET_NEXT_SLIDE_INDEX,
         });
       }, SLIDE_DURATION);
-      return () => clearTimeout(timeout);   
+      return () => clearTimeout(timeout);
     }
   }, [state.autoPlay, state.currentIndex]);
 
@@ -104,8 +168,8 @@ const Carousel = () => {
         role="button"
         tabIndex="0"
         className="carousel__arrow carousel__arrow--left"
-        onClick={setNextSlideIndex}
-        onKeyDown={setNextSlideIndex}
+        onClick={setPrevSlideIndex}
+        onKeyDown={setPrevSlideIndex}
       >
         <MdKeyboardArrowLeft className="carousel-arrow__icon" />
       </span>
@@ -114,8 +178,8 @@ const Carousel = () => {
         role="button"
         tabIndex="0"
         className="carousel__arrow carousel__arrow--right"
-        onClick={setPrevSlideIndex}
-        onKeyDown={setPrevSlideIndex}
+        onClick={setNextSlideIndex}
+        onKeyDown={setNextSlideIndex}
       >
         <MdKeyboardArrowRight className="carousel-arrow__icon" />
       </span>
@@ -123,9 +187,7 @@ const Carousel = () => {
         {getIndicators(state, setCurrentSlideIndex)}
       </ul>
       {!state.autoPlay ? (
-        <Fragment>
           <button onClick={setAutoPlay(true)}>Play</button>
-        </Fragment>
       ) : (
         <button onClick={setAutoPlay(false)}>Stop</button>
       )}
