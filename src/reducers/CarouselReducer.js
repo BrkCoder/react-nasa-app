@@ -3,6 +3,7 @@ import {
   SET_NEXT_SLIDE_INDEX,
   SET_PREV_SLIDE_INDEX,
   FETCH_SLIDES,
+  SET_PROGRESS,
   CLEAR_SLIDES,
   SET_AUTO_PLAY,
 } from "../actions/Carousel";
@@ -13,7 +14,7 @@ export const initialState = {
   autoPlay: false, // false | truu
 };
 
-function reducer(state, action) {
+function carouselReducer(state, action) {
   switch (action.type) {
     case SET_CUREENT_SLIDE_INDEX: {
       return {
@@ -21,13 +22,15 @@ function reducer(state, action) {
         currentIndex: action.payload.index,
       };
     }
-    case SET_NEXT_SLIDE_INDEX: {
+    case SET_NEXT_SLIDE_INDEX:
+    case SET_PROGRESS: {
       const length = state.slides.length;
       const current = state.currentIndex;
       const currentIndex = current === length - 1 ? 0 : current + 1;
       return {
         ...state,
         currentIndex,
+        autoPlay: action.type === SET_PROGRESS,
       };
     }
     case SET_PREV_SLIDE_INDEX: {
@@ -63,4 +66,4 @@ function reducer(state, action) {
   }
 }
 
-export default reducer;
+export default carouselReducer;

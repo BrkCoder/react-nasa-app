@@ -1,16 +1,18 @@
 import React, { useEffect, useReducer } from "react";
-import reducer, { initialState } from "../../reducers/Carousel";
+import { subDays, format } from "date-fns";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { FaRegPlayCircle, FaRegPauseCircle } from "react-icons/fa";
+import carouselReducer, { initialState } from "../reducers/CarouselReducer";
 import {
   SET_CUREENT_SLIDE_INDEX,
   SET_NEXT_SLIDE_INDEX,
   SET_PREV_SLIDE_INDEX,
   SET_AUTO_PLAY,
+  SET_PROGRESS,
   FETCH_SLIDES,
-} from "../../actions/Carousel";
-import { subDays, format } from "date-fns";
-import { Nasa } from "../../services/Nasa";
-
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+} from "../actions/Carousel";
+import ProgressBar from "./ProgressBar";
+import { Nasa } from "../services/Nasa";
 import "./Carousel.scss";
 
 /**
@@ -20,7 +22,7 @@ const fetchSlides = async function () {
   const nasa = new Nasa();
   const dates = getDates(7);
   const slides = await Promise.all(dates.map((date) => nasa.Apod(date, true)));
-  const result = slides.filter(({ code }) => code !== 404);
+  const result = slides.filter(({ code }) => !code);
   console.log(slides);
   return result;
 };
@@ -91,8 +93,8 @@ const getIndicators = ({ slides, currentIndex }, setCurrentSlideIndex) => {
               ? "carousel__indicator carousel__indicator--active"
               : "carousel__indicator"
           }
-          onClick={setCurrentSlideIndex}
-          onKeyDown={setCurrentSlideIndex}
+          onClick={setCurrentSlideIndex(index)}
+          onKeyDown={setCurrentSlideIndex(index)}
         ></span>
       </li>
     ))
@@ -104,7 +106,7 @@ const getIndicators = ({ slides, currentIndex }, setCurrentSlideIndex) => {
  */
 const Carousel = () => {
   const SLIDE_DURATION = 3000;
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(carouselReducer, initialState);
 
   //Init Slides of Carousel
   useEffect(() => {
@@ -125,14 +127,14 @@ const Carousel = () => {
     if (state.autoPlay) {
       const timeout = setTimeout(() => {
         dispatch({
-          type: SET_NEXT_SLIDE_INDEX,
+          type: SET_PROGRESS,
         });
       }, SLIDE_DURATION);
       return () => clearTimeout(timeout);
     }
   }, [state.autoPlay, state.currentIndex]);
 
-  const setCurrentSlideIndex = (index) => {
+  const setCurrentSlideIndex = (index) => () => {
     dispatch({
       type: SET_CUREENT_SLIDE_INDEX,
       payload: {
@@ -183,14 +185,21 @@ const Carousel = () => {
       >
         <MdKeyboardArrowRight className="carousel-arrow__icon" />
       </span>
+      <ProgressBar
+        key={state.currentIndex + state.autoPlay}
+        time={SLIDE_DURATION}
+        animate={state.autoPlay}
+      />
       <ul className="carousel__indicators">
         {getIndicators(state, setCurrentSlideIndex)}
       </ul>
+      <div className="carousel_buttons">
       {!state.autoPlay ? (
-          <button onClick={setAutoPlay(true)}>Play</button>
+        <FaRegPlayCircle className="carousel-play_btn" onClick={setAutoPlay(true)}/>
       ) : (
-        <button onClick={setAutoPlay(false)}>Stop</button>
+        <FaRegPauseCircle className="carousel-pause_btn" onClick={setAutoPlay(false)}/>
       )}
+      </div>
     </div>
   );
 };

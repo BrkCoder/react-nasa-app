@@ -2,7 +2,7 @@ import { format } from "date-fns";
 
 export class Nasa {
   constructor() {
-    this.apiKey = "[Your api key]";
+    this.apiKey = "[Your api key]"
     this.api = "https://api.nasa.gov";
   }
 
