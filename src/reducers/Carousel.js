@@ -2,17 +2,15 @@ import {
   SET_CUREENT_SLIDE_INDEX,
   SET_NEXT_SLIDE_INDEX,
   SET_PREV_SLIDE_INDEX,
-  SET_AUTO_SWITCH,
   FETCH_SLIDES,
   CLEAR_SLIDES,
+  SET_AUTO_PLAY,
 } from "../actions/Carousel";
 
 export const initialState = {
   currentIndex: 0,
   slides: [],
-  autoSwitch: false, // false | true
-  autoSwitchDelay: 1000, // ms
-  autoSwitchCallback: null, // function | null
+  autoPlay: false, // false | truu
 };
 
 function reducer(state, action) {
@@ -41,12 +39,10 @@ function reducer(state, action) {
         currentIndex,
       };
     }
-    case SET_AUTO_SWITCH: {
+    case SET_AUTO_PLAY: {
       return {
         ...state,
-        autoSwitch: action.payload.autoSwitch,
-        autoSwitchDelay: action.payload.autoSwitchDelay,
-        autoSwitchCallback: action.payload.autoSwitchCallback,
+        autoPlay: action.payload.autoPlay,
       };
     }
     case FETCH_SLIDES: {
